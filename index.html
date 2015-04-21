@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Examining US Cocaine Seizures</title>
+  <meta name="description" content="">
+  <meta name="author" content="Jose M. Albornoz">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/default.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  <h1>Examining US Cocaine Seizures in 2007</h1>
+  <h2>Coursera&#39;s &quot;Developing Data Products&quot;</h2>
+
+<h3>Jose M. Albornoz</h3>
+
+</section>
+<section class='class' data-state='' id='id'>
+  <h2>Introduction</h2>
+  <ul>
+<li><p>A Shiny app that summarizes and displays data about US cocaine seizures during 2007</p></li>
+<li><p>The app presents 3 maps, each showing the following information by US state for a particular month:  </p>
+
+<ul>
+<li>Average cocaine purity (%) </li>
+<li>Total seizure weight (grams)</li>
+<li>Total seizure value (US$)</li>
+</ul></li>
+<li><p>All the user has to do is to select a month (in numeric format) using a slider; the maps are automatically updated. </p></li>
+<li><p>The app can be found <a href="https://jmalbornoz.shinyapps.io/ProjectC/">here</a> </p></li>
+<li><p>Source code can be found <a href="https://github.com/jmalbornoz/developing-data-products-project">here</a></p></li>
+</ul>
+
+</section>
+<section class='class' data-state='' id='id'>
+  <h2>What it looks like</h2>
+  <div style='text-align: center;'>
+    <img height='400' src='img1.png' />
+</div>
+
+<ul>
+<li><p>Scroll up and down to see the 3 maps</p></li>
+<li><p>The data is included in the <strong>ggvis</strong> package; it comes from DEA&#39;s <strong>STRIDE</strong>, <a href="http://www.dea.gov/resource-center/stride-data.shtml">System to Retrieve Information from Drug Evidence</a></p></li>
+</ul>
+
+</section>
+<section class='class' data-state='' id='id'>
+  <h2>Dataset Treatment Example 1</h2>
+  <ul>
+<li><p>The dataset consists of 3380 observations, each comprising</p>
+
+<ul>
+<li>Abbreviation for the state in which the seizure took place </li>
+<li>Potency of the drug expressed as a percentage</li>
+<li>Weight of the seizure in grams </li>
+<li>Month in which the seizure occurred </li>
+<li>Estimated value of the seizure in USD.</li>
+</ul></li>
+<li><p>State abbreviations are converted to to full state names in lowercase</p></li>
+</ul>
+
+<pre><code class="r">    library(ggvis); data(cocaine)
+    convertName &lt;- function(abb) {
+       tolower(state.name[grep(abb, state.abb)])
+    }     
+    cocaine$state &lt;- as.character(sapply(cocaine$state, convertName)) 
+</code></pre>
+
+</section>
+<section class='class' data-state='' id='id'>
+  <h2>Dataset Treatment Example 2</h2>
+  <ul>
+<li>The data is filtered by month; then an appropriate summary is obtained (mean/total)</li>
+</ul>
+
+<pre><code class="r">      theMonth &lt;- 6  # supplied by the user through the slider!
+      prepData1 &lt;- function(theMonth) {
+         theDataTable &lt;- data.table(subset(cocaine, month == theMonth))
+         avgPurityByState &lt;- theDataTable[,list(meanPurity=mean(potency)),by=state]
+      }
+      avgPurityByState &lt;- prepData1(theMonth)
+      print(head(avgPurityByState))   # let&#39;s take a look at the results....
+</code></pre>
+
+<pre><code>##           state meanPurity
+## 1:      indiana   60.26667
+## 2:      florida   61.42308
+## 3: pennsylvania   45.30000
+## 4:   new jersey   44.50000
+## 5:     illinois   53.20000
+## 6:   california   64.75000
+</code></pre>
+
+<ul>
+<li></li>
+</ul>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'default', 
+    transition: Reveal.getQueryHash().transition || 'default', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>  <!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+ 
+
+</html>
